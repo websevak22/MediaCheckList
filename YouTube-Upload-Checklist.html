@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Video Pre-Upload Checklist</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #222; padding: 20px; }
+  .page { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px 36px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+  
+  .header { text-align: center; margin-bottom: 20px; border-bottom: 3px solid #e63946; padding-bottom: 15px; }
+  .header h1 { font-size: 20px; color: #1d3557; letter-spacing: 1px; }
+  .header h2 { font-size: 15px; color: #e63946; margin-top: 6px; font-weight: 600; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px 20px; margin-bottom: 18px; padding: 12px 16px; background: #f0f4f8; border-radius: 6px; }
+  .info-grid label { font-size: 12px; color: #555; font-weight: 600; }
+  .info-grid input { border: none; border-bottom: 1.5px solid #ccc; background: transparent; padding: 3px 2px; font-size: 13px; width: 100%; outline: none; }
+  .info-grid input:focus { border-bottom-color: #e63946; }
+
+  .type-row { display: flex; gap: 16px; margin-bottom: 18px; padding: 10px 16px; background: #f0f4f8; border-radius: 6px; align-items: center; }
+  .type-row span { font-size: 12px; font-weight: 600; color: #555; }
+  .type-row label { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+  .type-row input[type="checkbox"] { accent-color: #e63946; width: 14px; height: 14px; }
+
+  .section { margin-bottom: 16px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #fff; background: #1d3557; padding: 6px 12px; border-radius: 4px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .section-title.mandatory { background: #e63946; }
+
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 20px; padding: 8px 12px; }
+  .check-item { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+  .check-item input[type="checkbox"] { accent-color: #e63946; width: 14px; height: 14px; flex-shrink: 0; }
+  .check-item label { font-size: 12px; line-height: 1.4; cursor: pointer; }
+
+  .text-area-box { margin: 0 12px 10px; padding: 8px 12px; background: #fafafa; border: 1px dashed #ccc; border-radius: 4px; min-height: 50px; }
+  .text-area-box .label-small { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .text-area-box textarea { width: 100%; border: none; background: transparent; font-size: 12px; resize: vertical; outline: none; font-family: inherit; min-height: 40px; }
+
+  .approval-section { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 16px; padding-top: 14px; border-top: 2px solid #1d3557; }
+  .approval-box { padding: 10px; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 6px; }
+  .approval-box h4 { font-size: 11px; color: #e63946; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .approval-box label { font-size: 11px; color: #555; display: block; margin-bottom: 4px; }
+  .approval-box input { width: 100%; border: none; border-bottom: 1.5px solid #ccc; background: transparent; padding: 3px; font-size: 12px; outline: none; }
+  .approval-box input:focus { border-bottom-color: #e63946; }
+
+  .final-status { margin-top: 16px; padding: 12px 16px; border: 2px solid #e63946; border-radius: 6px; display: flex; gap: 24px; align-items: center; justify-content: center; }
+  .final-status label { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .final-status input[type="checkbox"] { accent-color: #e63946; width: 16px; height: 16px; }
+
+  .warning { text-align: center; font-size: 12px; color: #e63946; font-weight: 700; margin-top: 12px; letter-spacing: 0.5px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { box-shadow: none; padding: 16px 20px; }
+    .section-title { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .final-status { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>BEING SEVAK CHARITABLE TRUST</h1>
+    <h2>YouTube Video — Pre-Upload Checklist &amp; Approval Form</h2>
+  </div>
+
+  <!-- VIDEO DETAILS -->
+  <div class="info-grid">
+    <div><label>Video Title</label><input type="text"></div>
+    <div><label>Video Topic / Project</label><input type="text"></div>
+    <div><label>Video Editor</label><input type="text"></div>
+    <div><label>Prepared By</label><input type="text"></div>
+    <div><label>Date</label><input type="text"></div>
+    <div><label>Total Duration</label><input type="text"></div>
+  </div>
+
+  <div class="type-row">
+    <span>Video Type:</span>
+    <label><input type="checkbox"> Long Video</label>
+    <label><input type="checkbox"> Short</label>
+    <label><input type="checkbox"> Event</label>
+    <label><input type="checkbox"> Story</label>
+    <label><input type="checkbox"> Awareness</label>
+  </div>
+
+  <!-- SECTION 1: VIDEO QUALITY -->
+  <div class="section">
+    <div class="section-title">1. VIDEO QUALITY</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="q1"><label for="q1">Strong hook in first 5–10 seconds</label></div>
+      <div class="check-item"><input type="checkbox" id="q2"><label for="q2">Audio / voice is clear</label></div>
+      <div class="check-item"><input type="checkbox" id="q3"><label for="q3">Story is clear and engaging</label></div>
+      <div class="check-item"><input type="checkbox" id="q4"><label for="q4">Background music is balanced</label></div>
+      <div class="check-item"><input type="checkbox" id="q5"><label for="q5">Unnecessary footage removed</label></div>
+      <div class="check-item"><input type="checkbox" id="q6"><label for="q6">Subtitles / captions checked</label></div>
+      <div class="check-item"><input type="checkbox" id="q7"><label for="q7">Names, dates &amp; facts are correct</label></div>
+      <div class="check-item"><input type="checkbox" id="q8"><label for="q8">Video checked on mobile</label></div>
+      <div class="check-item"><input type="checkbox" id="q9"><label for="q9">HD / 1080p or better</label></div>
+      <div class="check-item"><input type="checkbox" id="q10"><label for="q10">Strong Call to Action</label></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: NGO BRANDING -->
+  <div class="section">
+    <div class="section-title">2. NGO BRANDING</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="b1"><label for="b1">Being Sevak logo included</label></div>
+      <div class="check-item"><input type="checkbox" id="b4"><label for="b4">Branding is consistent</label></div>
+      <div class="check-item"><input type="checkbox" id="b2"><label for="b2">Logo clear &amp; correctly placed</label></div>
+      <div class="check-item"><input type="checkbox" id="b5"><label for="b5">Project / program name correct</label></div>
+      <div class="check-item"><input type="checkbox" id="b3"><label for="b3">Logo does not cover content</label></div>
+      <div class="check-item"><input type="checkbox" id="b6"><label for="b6">Contact / social media details correct</label></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: BENEFICIARY & CONTENT -->
+  <div class="section">
+    <div class="section-title">3. BENEFICIARY &amp; CONTENT</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="c1"><label for="c1">Beneficiary consent confirmed</label></div>
+      <div class="check-item"><input type="checkbox" id="c4"><label for="c4">NGO's work accurately represented</label></div>
+      <div class="check-item"><input type="checkbox" id="c2"><label for="c2">Children's privacy / safety checked</label></div>
+      <div class="check-item"><input type="checkbox" id="c5"><label for="c5">Statistics / data verified</label></div>
+      <div class="check-item"><input type="checkbox" id="c3"><label for="c3">No misleading / insensitive footage</label></div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: TITLE CHECK – MANDATORY -->
+  <div class="section">
+    <div class="section-title mandatory">4. TITLE CHECK — MANDATORY</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="t1"><label for="t1">Title is attractive &amp; creates curiosity</label></div>
+      <div class="check-item"><input type="checkbox" id="t4"><label for="t4">Spelling &amp; grammar checked</label></div>
+      <div class="check-item"><input type="checkbox" id="t2"><label for="t2">Title clearly explains the video</label></div>
+      <div class="check-item"><input type="checkbox" id="t5"><label for="t5">Suitable for YouTube audience</label></div>
+      <div class="check-item"><input type="checkbox" id="t3"><label for="t3">Main keyword included naturally</label></div>
+      <div class="check-item"><input type="checkbox" id="t6"><label for="t6">Not misleading / clickbait</label></div>
+    </div>
+    <div class="text-area-box">
+      <div class="label-small">FINAL TITLE:</div>
+      <textarea rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- SECTION 5: DESCRIPTION CHECK – MANDATORY -->
+  <div class="section">
+    <div class="section-title mandatory">5. DESCRIPTION CHECK — MANDATORY</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="d1"><label for="d1">Description is written</label></div>
+      <div class="check-item"><input type="checkbox" id="d5"><label for="d5">Donation info added where applicable</label></div>
+      <div class="check-item"><input type="checkbox" id="d2"><label for="d2">First 2–3 lines explain the video</label></div>
+      <div class="check-item"><input type="checkbox" id="d6"><label for="d6">Website / social links checked</label></div>
+      <div class="check-item"><input type="checkbox" id="d3"><label for="d3">Project / beneficiary story explained</label></div>
+      <div class="check-item"><input type="checkbox" id="d7"><label for="d7">Spelling &amp; grammar checked</label></div>
+      <div class="check-item"><input type="checkbox" id="d4"><label for="d4">NGO name mentioned correctly</label></div>
+      <div class="check-item"><input type="checkbox" id="d8"><label for="d8">Relevant keywords included</label></div>
+    </div>
+    <div class="text-area-box">
+      <div class="label-small">FINAL DESCRIPTION:</div>
+      <textarea rows="3"></textarea>
+    </div>
+  </div>
+
+  <!-- SECTION 6: HASHTAGS – MANDATORY -->
+  <div class="section">
+    <div class="section-title mandatory">6. HASHTAGS — MANDATORY</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="h1"><label for="h1">Relevant hashtags added</label></div>
+      <div class="check-item"><input type="checkbox" id="h3"><label for="h3">No unnecessary / misleading hashtags</label></div>
+      <div class="check-item"><input type="checkbox" id="h2"><label for="h2">NGO / org hashtag included</label></div>
+      <div class="check-item"><input type="checkbox" id="h4"><label for="h4">Spelling checked</label></div>
+    </div>
+    <div class="text-area-box">
+      <div class="label-small">FINAL HASHTAGS:</div>
+      <textarea rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- SECTION 7: THUMBNAIL -->
+  <div class="section">
+    <div class="section-title">7. THUMBNAIL</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="n1"><label for="n1">High-quality image</label></div>
+      <div class="check-item"><input type="checkbox" id="n4"><label for="n4">Matches the video content</label></div>
+      <div class="check-item"><input type="checkbox" id="n2"><label for="n2">Strong emotional / impactful visual</label></div>
+      <div class="check-item"><input type="checkbox" id="n5"><label for="n5">No misleading / clickbait image</label></div>
+      <div class="check-item"><input type="checkbox" id="n3"><label for="n3">2–5 words max, readable on mobile</label></div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: END SCREEN – MANDATORY -->
+  <div class="section">
+    <div class="section-title mandatory">8. END SCREEN — MANDATORY</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="e1"><label for="e1">"Thank You for Watching" added</label></div>
+      <div class="check-item"><input type="checkbox" id="e5"><label for="e5">"Subscribe" prompt added</label></div>
+      <div class="check-item"><input type="checkbox" id="e2"><label for="e2">Donation Appeal added</label></div>
+      <div class="check-item"><input type="checkbox" id="e6"><label for="e6">Related video / playlist added</label></div>
+      <div class="check-item"><input type="checkbox" id="e3"><label for="e3">Donation QR Code / link added &amp; tested</label></div>
+      <div class="check-item"><input type="checkbox" id="e7"><label for="e7">Visible long enough</label></div>
+      <div class="check-item"><input type="checkbox" id="e4"><label for="e4">Donation contact details checked</label></div>
+    </div>
+  </div>
+
+  <!-- SECTION 9: YOUTUBE SETTINGS -->
+  <div class="section">
+    <div class="section-title">9. YOUTUBE SETTINGS</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="s1"><label for="s1">Correct category selected</label></div>
+      <div class="check-item"><input type="checkbox" id="s5"><label for="s5">Audience setting checked</label></div>
+      <div class="check-item"><input type="checkbox" id="s2"><label for="s2">Correct language selected</label></div>
+      <div class="check-item"><input type="checkbox" id="s6"><label for="s6">Visibility setting checked</label></div>
+      <div class="check-item"><input type="checkbox" id="s3"><label for="s3">Playlist added</label></div>
+      <div class="check-item"><input type="checkbox" id="s7"><label for="s7">Upload date / time confirmed</label></div>
+      <div class="check-item"><input type="checkbox" id="s4"><label for="s4">End screen &amp; Cards added</label></div>
+    </div>
+  </div>
+
+  <!-- SECTION 10: FINAL QUALITY CHECK -->
+  <div class="section">
+    <div class="section-title">10. FINAL QUALITY &amp; PUBLISHING CHECK</div>
+    <div class="check-grid">
+      <div class="check-item"><input type="checkbox" id="f1"><label for="f1">Final video watched completely</label></div>
+      <div class="check-item"><input type="checkbox" id="f6"><label for="f6">Hashtags checked</label></div>
+      <div class="check-item"><input type="checkbox" id="f2"><label for="f2">Video watched on mobile</label></div>
+      <div class="check-item"><input type="checkbox" id="f7"><label for="f7">Donation link / QR code tested</label></div>
+      <div class="check-item"><input type="checkbox" id="f3"><label for="f3">Audio checked with headphones</label></div>
+      <div class="check-item"><input type="checkbox" id="f8"><label for="f8">Contact information checked</label></div>
+      <div class="check-item"><input type="checkbox" id="f4"><label for="f4">Thumbnail checked</label></div>
+      <div class="check-item"><input type="checkbox" id="f9"><label for="f9">Copyright / music checked</label></div>
+      <div class="check-item"><input type="checkbox" id="f5"><label for="f5">Title &amp; Description checked</label></div>
+      <div class="check-item"><input type="checkbox" id="f10"><label for="f10">All spellings checked</label></div>
+    </div>
+  </div>
+
+  <!-- FINAL APPROVAL -->
+  <div class="approval-section">
+    <div class="approval-box">
+      <h4>Video Editor</h4>
+      <label>Name</label><input type="text">
+      <label>Signature</label><input type="text">
+      <label>Date</label><input type="text">
+    </div>
+    <div class="approval-box">
+      <h4>Social Media Executive</h4>
+      <label>Name</label><input type="text">
+      <label>Signature</label><input type="text">
+      <label>Date</label><input type="text">
+    </div>
+    <div class="approval-box">
+      <h4>Final Approver</h4>
+      <label>Name</label><input type="text">
+      <label>Signature</label><input type="text">
+      <label>Date</label><input type="text">
+    </div>
+  </div>
+
+  <!-- FINAL STATUS -->
+  <div class="final-status">
+    <label><input type="checkbox"> APPROVED FOR UPLOAD</label>
+    <label><input type="checkbox"> CHANGES REQUIRED</label>
+    <label><input type="checkbox"> NOT APPROVED</label>
+  </div>
+
+  <p class="warning">⚠ PUBLISH ONLY AFTER ALL MANDATORY CHECKS ARE COMPLETED.</p>
+
+</div>
+</body>
+</html>
