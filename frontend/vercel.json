@@ -1,6 +1,15 @@
 {
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "https://media-checklist-backend.vercel.app/api/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "https://media-checklist-backend.vercel.app/api/$1" },
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }
