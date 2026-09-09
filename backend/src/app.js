@@ -3,6 +3,7 @@ import cors from 'cors'
 import 'dotenv/config'
 import meRouter from './routes/me.js'
 import checklistsRouter from './routes/checklists.js'
+import { hasConfig } from './supabase.js'
 
 export function createApp() {
   const app = express()
@@ -16,9 +17,9 @@ export function createApp() {
     next()
   })
 
-  // Health check
+  // Health check (also reports config state so deployment issues are visible)
   app.get('/api/health', (_req, res) => {
-    res.json({ ok: true, ts: Date.now() })
+    res.json({ ok: true, ts: Date.now(), node: process.version, configured: hasConfig })
   })
 
   // Routes

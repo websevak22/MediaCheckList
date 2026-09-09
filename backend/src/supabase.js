@@ -17,9 +17,14 @@ if (!hasConfig) {
 
 // Privileged client used ONLY when a real service_role key is set.
 // It bypasses RLS — authorization is enforced in this backend instead.
-export const serviceRoleClient = hasServiceRole
-  ? createClient(url || '', serviceRoleKey)
-  : null
+export const serviceRoleClient = (() => {
+  try {
+    return hasServiceRole ? createClient(url || '', serviceRoleKey) : null
+  } catch (err) {
+    console.error('[backend] Failed to init service_role client:', err.message)
+    return null
+  }
+})()
 
 // Returns the client to use for data operations in a request.
 // - With a real service_role key: the privileged client (bypasses RLS).

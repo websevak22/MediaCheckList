@@ -3,10 +3,12 @@ import { requireAuth, requireAdmin } from '../middleware/require-auth.js'
 
 const router = Router()
 
+const run = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
 router.use(requireAuth)
 
 // GET /api/checklists  (admin: all, normal: own)
-router.get('/', async (req, res) => {
+router.get('/', run(async (req, res) => {
   const admin = req.profile?.role === 'admin'
 
   let query = req.data
@@ -20,10 +22,10 @@ router.get('/', async (req, res) => {
   const { data, error } = await query
   if (error) return res.status(500).json({ error: error.message })
   res.json(data || [])
-})
+}))
 
 // GET /api/checklists/:id  (+ its approvers)
-router.get('/:id', async (req, res) => {
+router.get('/:id', run(async (req, res) => {
   const { id } = req.params
   const admin = req.profile?.role === 'admin'
 
@@ -48,10 +50,10 @@ router.get('/:id', async (req, res) => {
     .order('created_at')
 
   res.json({ ...checklist, approvers: approvers || [] })
-})
+}))
 
 // POST /api/checklists  (create checklist + optional approvers)
-router.post('/', async (req, res) => {
+router.post('/', run(async (req, res) => {
   const body = req.body || {}
   const { approvers, ...checklistData } = body
 
@@ -83,10 +85,10 @@ router.post('/', async (req, res) => {
   }
 
   res.status(201).json(checklist)
-})
+}))
 
 // PATCH /api/checklists/:id/status  (admin only: approved / changes_required / not_approved)
-router.patch('/:id/status', requireAdmin, async (req, res) => {
+router.patch('/:id/status', requireAdmin, run(async (req, res) => {
   const { id } = req.params
   const { status } = req.body || {}
 
@@ -104,10 +106,10 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
 
   if (error) return res.status(500).json({ error: error.message })
   res.json(data)
-})
+}))
 
 // DELETE /api/checklists/:id  (owner or admin)
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', run(async (req, res) => {
   const { id } = req.params
   const admin = req.profile?.role === 'admin'
 
@@ -132,6 +134,6 @@ router.delete('/:id', async (req, res) => {
   }
 
   res.json({ ok: true })
-})
+}))
 
 export default router

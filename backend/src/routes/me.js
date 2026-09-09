@@ -3,8 +3,10 @@ import { requireAuth } from '../middleware/require-auth.js'
 
 const router = Router()
 
+const run = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
 // GET /api/me -> current user profile (role)
-router.get('/me', requireAuth, async (req, res) => {
+router.get('/me', requireAuth, run(async (req, res) => {
   const { id, email } = req.user
 
   const { data: profile, error } = await req.data
@@ -27,6 +29,6 @@ router.get('/me', requireAuth, async (req, res) => {
   }
 
   return res.json(profile)
-})
+}))
 
 export default router

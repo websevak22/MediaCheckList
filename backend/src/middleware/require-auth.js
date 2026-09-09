@@ -6,7 +6,14 @@ import { getDataClient, hasConfig } from '../supabase.js'
 // Created only when Supabase is configured; otherwise requests get a clean 503.
 const url = process.env.SUPABASE_URL
 const anonKey = process.env.SUPABASE_ANON_KEY
-const authClient = hasConfig ? createClient(url || '', anonKey || '') : null
+const authClient = (() => {
+  try {
+    return hasConfig ? createClient(url || '', anonKey || '') : null
+  } catch (err) {
+    console.error('[backend] Failed to init auth client:', err.message)
+    return null
+  }
+})()
 
 export async function requireAuth(req, res, next) {
   if (!authClient) {
