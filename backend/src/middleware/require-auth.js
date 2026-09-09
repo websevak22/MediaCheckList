@@ -1,13 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 import 'dotenv/config'
-import { getDataClient } from '../supabase.js'
+import { getDataClient, hasConfig } from '../supabase.js'
 
 // A user-facing client (anon key) is used ONLY to verify the caller's JWT.
+// Created only when Supabase is configured; otherwise requests get a clean 503.
 const url = process.env.SUPABASE_URL
 const anonKey = process.env.SUPABASE_ANON_KEY
-const authClient = createClient(url || '', anonKey || '')
+const authClient = hasConfig ? createClient(url || '', anonKey || '') : null
 
 export async function requireAuth(req, res, next) {
+  if (!authClient) {
+    return res.status(503).json({ error: 'Server not configured with Supabase credentials' })
+  }
+
   const header = req.headers.authorization || ''
   const token = header.startsWith('Bearer ') ? header.slice(7) : null
 

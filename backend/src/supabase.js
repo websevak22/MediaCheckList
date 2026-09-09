@@ -9,8 +9,10 @@ const hasServiceRole = Boolean(
   serviceRoleKey && serviceRoleKey !== 'REPLACE_WITH_SERVICE_ROLE_KEY'
 )
 
-if (!url || (!hasServiceRole && !anonKey)) {
-  console.warn('[backend] Missing Supabase config. Check backend/.env')
+export const hasConfig = Boolean(url && (hasServiceRole || anonKey))
+
+if (!hasConfig) {
+  console.warn('[backend] Missing Supabase config. Check backend/.env or Vercel env vars')
 }
 
 // Privileged client used ONLY when a real service_role key is set.
@@ -25,6 +27,7 @@ export const serviceRoleClient = hasServiceRole
 //   so RLS applies per user. Paste a real service_role key into backend/.env
 //   to switch to the privileged mode.
 export function getDataClient(accessToken) {
+  if (!hasConfig) return null
   if (serviceRoleClient) return serviceRoleClient
   return createClient(url || '', anonKey || '', {
     global: {
