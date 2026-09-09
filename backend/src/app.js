@@ -22,6 +22,16 @@ export function createApp() {
     res.json({ ok: true, ts: Date.now(), node: process.version, configured: hasConfig })
   })
 
+  // Root: so opening the backend URL in a browser shows something sensible
+  app.get('/', (_req, res) => {
+    res.json({
+      ok: true,
+      service: 'Media Checklist API',
+      health: '/api/health',
+      api: '/api/checklists',
+    })
+  })
+
   // Routes
   app.use('/api', meRouter)
   app.use('/api/checklists', checklistsRouter)
