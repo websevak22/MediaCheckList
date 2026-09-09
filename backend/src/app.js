@@ -49,3 +49,8 @@ export function createApp() {
 
   return app
 }
+
+// Default export: lets Vercel treat src/app.js as a valid server entrypoint
+// for non-/api paths instead of crashing with "the default export must be a
+// function or server".
+export default createApp()
