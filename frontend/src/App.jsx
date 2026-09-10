@@ -15,6 +15,7 @@ function AppLayout({ profile, onLogout, children }) {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const closeMenu = () => setMenuOpen(false)
+  const toggleMenu = () => setMenuOpen(prev => !prev)
 
   return (
     <div className="app-shell">
@@ -22,6 +23,7 @@ function AppLayout({ profile, onLogout, children }) {
         profile={profile}
         onLogout={async () => { closeMenu(); await onLogout() }}
         open={menuOpen}
+        onToggle={toggleMenu}
         onClose={closeMenu}
       />
       <div className={menuOpen ? 'sidebar-backdrop' : 'sidebar-backdrop hidden'} onClick={closeMenu} />
@@ -60,9 +62,7 @@ export default function App() {
   return (
     <ToastProvider>
       <Routes>
-        <Route path="/login" element={
-          profile ? <Navigate to="/dashboard" replace /> : <Login />
-        } />
+        <Route path="/login" element={<Login />} />
 
         <Route path="/dashboard" element={
           <ProtectedRoute>{(p) => (

@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { isAdmin } from '../lib/auth'
 
-export default function Sidebar({ profile, onLogout, open, onClose }) {
+export default function Sidebar({ profile, onLogout, open, onToggle, onClose }) {
   const navigate = useNavigate()
   const admin = isAdmin(profile)
 
@@ -29,7 +29,7 @@ export default function Sidebar({ profile, onLogout, open, onClose }) {
   return (
     <>
       <div className="mobile-topbar">
-        <button className="menu-btn" onClick={onClose ? () => onClose(!open) : undefined} aria-label="Toggle menu">
+        <button className="menu-btn" onClick={onToggle} aria-label="Toggle menu">
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
         <div className="brand-heart"><HeartHandshake size={18} /></div>

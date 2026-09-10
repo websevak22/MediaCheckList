@@ -601,7 +601,6 @@ tbody tr:hover { background: #f8f9fb; }
 }
 .btn-login:hover { background: var(--red-dark); transform: translateY(-1px); }
 .btn-login:disabled { background: #d8dee8; cursor: not-allowed; transform: none; box-shadow: none; }
-.login-foot { text-align: center; margin-top: 22px; font-size: 11px; color: var(--muted); }
 
 /* ============ EMPTY / LOADING ============ */
 .loading, .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
