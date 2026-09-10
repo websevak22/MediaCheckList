@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import { getCurrentUser, signOut } from './lib/auth'
 import ProtectedRoute from './components/ProtectedRoute'
 import Sidebar from './components/Sidebar'
+import { ToastProvider } from './components/Toast'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import NewChecklist from './pages/NewChecklist'
@@ -57,53 +58,55 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/login" element={
-        profile ? <Navigate to="/dashboard" replace /> : <Login />
-      } />
+    <ToastProvider>
+      <Routes>
+        <Route path="/login" element={
+          profile ? <Navigate to="/dashboard" replace /> : <Login />
+        } />
 
-      <Route path="/dashboard" element={
-        <ProtectedRoute>{(p) => (
-          <AppLayout profile={p} onLogout={handleLogout}>
-            <Dashboard profile={p} />
-          </AppLayout>
-        )}</ProtectedRoute>
-      } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <Dashboard profile={p} />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
 
-      <Route path="/new" element={
-        <ProtectedRoute>{(p) => (
-          <AppLayout profile={p} onLogout={handleLogout}>
-            <NewChecklist profile={p} />
-          </AppLayout>
-        )}</ProtectedRoute>
-      } />
+        <Route path="/new" element={
+          <ProtectedRoute>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <NewChecklist profile={p} />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
 
-      <Route path="/my-submissions" element={
-        <ProtectedRoute>{(p) => (
-          <AppLayout profile={p} onLogout={handleLogout}>
-            <Submissions profile={p} admin={false} />
-          </AppLayout>
-        )}</ProtectedRoute>
-      } />
+        <Route path="/my-submissions" element={
+          <ProtectedRoute>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <Submissions profile={p} admin={false} />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
 
-      <Route path="/submissions" element={
-        <ProtectedRoute adminOnly>{(p) => (
-          <AppLayout profile={p} onLogout={handleLogout}>
-            <Submissions profile={p} admin />
-          </AppLayout>
-        )}</ProtectedRoute>
-      } />
+        <Route path="/submissions" element={
+          <ProtectedRoute adminOnly>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <Submissions profile={p} admin />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
 
-      <Route path="/submission/:id" element={
-        <ProtectedRoute>{(p) => (
-          <AppLayout profile={p} onLogout={handleLogout}>
-            <SubmissionDetail profile={p} />
-          </AppLayout>
-        )}</ProtectedRoute>
-      } />
+        <Route path="/submission/:id" element={
+          <ProtectedRoute>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <SubmissionDetail profile={p} />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
 
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </ToastProvider>
   )
 }

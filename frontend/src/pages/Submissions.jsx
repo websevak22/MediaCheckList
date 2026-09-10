@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, Plus, FileQuestion, Trash2, Eye } from 'lucide-react'
 import { api } from '../lib/api'
+import { useToast } from '../components/Toast'
 import { STATUS_COLORS, STATUS_LABELS, checklistProgress } from '../lib/checklistData'
 
 export default function Submissions({ profile, admin }) {
+  const showToast = useToast()
   const [submissions, setSubmissions] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
@@ -45,6 +47,7 @@ export default function Submissions({ profile, admin }) {
     if (!confirm('Delete this checklist permanently?')) return
     try {
       await api.deleteChecklist(id)
+      showToast('Checklist deleted')
     } catch (_e) { /* ignore */ }
     fetchData()
   }

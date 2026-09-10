@@ -6,11 +6,13 @@ import {
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { isAdmin } from '../lib/auth'
+import { useToast } from '../components/Toast'
 import { STATUS_COLORS, STATUS_LABELS, TYPE_LABELS, TYPE_COLORS, checklistProgress, countSection, ALL_SECTIONS } from '../lib/checklistData'
 import ProgressBar from '../components/ProgressBar'
 
 export default function Dashboard({ profile }) {
   const admin = isAdmin(profile)
+  const showToast = useToast()
   const [submissions, setSubmissions] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -47,6 +49,7 @@ export default function Dashboard({ profile }) {
     try {
       await api.deleteChecklist(s.id)
       setSubmissions((prev) => prev.filter((x) => x.id !== s.id))
+      showToast('Checklist deleted')
     } catch (_e) { /* ignore */ }
   }
 

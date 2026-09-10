@@ -5,7 +5,7 @@ import { api } from '../lib/api'
 import CollapsibleSection from '../components/CollapsibleSection'
 import CheckGroup from '../components/CheckGroup'
 import TextArea from '../components/TextArea'
-import Toast from '../components/Toast'
+import { useToast } from '../components/Toast'
 import ProgressBar from '../components/ProgressBar'
 import {
   VIDEO_QUALITY_ITEMS, NGO_BRANDING_ITEMS, BENEFICIARY_ITEMS,
@@ -24,9 +24,9 @@ const TYPE_OPTIONS = [
 
 export default function NewChecklist({ profile }) {
   const navigate = useNavigate()
+  const showToast = useToast()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
-  const [toast, setToast] = useState(null)
 
   const [form, setForm] = useState({
     video_title: '',
@@ -117,8 +117,8 @@ export default function NewChecklist({ profile }) {
 
       await api.createChecklist({ ...checklistData, approvers })
 
-      setToast('Checklist submitted successfully!')
-      setTimeout(() => navigate('/dashboard'), 1200)
+      showToast('Checklist submitted successfully!')
+      setTimeout(() => navigate('/dashboard'), 900)
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
@@ -128,7 +128,6 @@ export default function NewChecklist({ profile }) {
 
   return (
     <div className="content-main">
-      {toast && <Toast message={toast} type="success" onClose={() => setToast(null)} />}
       {error && <div className="error-banner">{error}</div>}
 
       <div className="page-header">

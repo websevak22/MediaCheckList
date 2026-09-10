@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, AlertTriangle, XCircle, Trash2, ClipboardCheck, UserCheck } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, AlertTriangle, XCircle, Trash2, ClipboardCheck, UserCheck, FileDown } from 'lucide-react'
 import { api } from '../lib/api'
 import { isAdmin } from '../lib/auth'
-import Toast from '../components/Toast'
+import { useToast } from '../components/Toast'
 import ProgressBar from '../components/ProgressBar'
 import {
   ALL_SECTIONS, countSection, checklistProgress,
@@ -28,11 +28,11 @@ function ReadOnlyGrid({ items, values }) {
 export default function SubmissionDetail({ profile }) {
   const { id } = useParams()
   const admin = isAdmin(profile)
+  const showToast = useToast()
   const [checklist, setChecklist] = useState(null)
   const [approvers, setApprovers] = useState([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
-  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     fetchData()
@@ -58,7 +58,7 @@ export default function SubmissionDetail({ profile }) {
     try {
       await api.updateStatus(id, newStatus)
       setChecklist((prev) => ({ ...prev, status: newStatus }))
-      setToast(`Checklist marked as ${label}`)
+      showToast(`Checklist marked as ${label}`)
     } catch (err) {
       setChecklist((prev) => prev)
     }
@@ -70,6 +70,7 @@ export default function SubmissionDetail({ profile }) {
     setUpdating(true)
     try {
       await api.deleteChecklist(id)
+      showToast('Checklist deleted')
     } catch (_e) { /* ignore */ }
     setUpdating(false)
     window.location.href = admin ? '/submissions' : '/my-submissions'
@@ -87,7 +88,19 @@ export default function SubmissionDetail({ profile }) {
 
   return (
     <div className="content-main">
-      {toast && <Toast message={toast} type="success" onClose={() => setToast(null)} />}
+      <div className="print-only print-header">
+        <h1>BEING SEVAK CHARITABLE TRUST</h1>
+        <h2>YouTube Video — Pre-Upload Checklist &amp; Approval Form</h2>
+        <div className="print-meta">
+          <span><strong>Video:</strong> {checklist.video_title || 'Untitled'}</span>
+          <span><strong>Editor:</strong> {checklist.video_editor || '—'}</span>
+          <span><strong>Submitted:</strong> {new Date(checklist.created_at).toLocaleString('en-IN')}</span>
+          <span><strong>Completion:</strong> {progress}%</span>
+          <span className="print-status" style={{ background: STATUS_COLORS[checklist.status] }}>
+            {STATUS_LABELS[checklist.status]}
+          </span>
+        </div>
+      </div>
 
       <div className="page-header detail-header">
         <div>
@@ -102,6 +115,9 @@ export default function SubmissionDetail({ profile }) {
           <span className="status-badge large" style={{ background: STATUS_COLORS[checklist.status] }}>
             {STATUS_LABELS[checklist.status]}
           </span>
+          <button className="btn-primary" onClick={() => window.print()}>
+            <FileDown size={15} /> Download PDF
+          </button>
           {canDelete && (
             <button className="btn-delete" disabled={updating} onClick={handleDelete}>
               <Trash2 size={15} /> Delete

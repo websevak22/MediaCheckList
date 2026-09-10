@@ -538,7 +538,7 @@ tbody tr:hover { background: #f8f9fb; }
 
 /* ============ TOAST ============ */
 .toast {
-  position: fixed; top: 20px; right: 20px; z-index: 100;
+  position: fixed; top: 20px; right: 20px; z-index: 120;
   display: flex; align-items: center; gap: 12px;
   padding: 14px 20px; border-radius: 12px; color: #fff;
   font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg);
@@ -589,6 +589,8 @@ tbody tr:hover { background: #f8f9fb; }
   transition: border-color 0.15s, box-shadow 0.15s; background: #fafbfd;
 }
 .login-card input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.12); background: #fff; }
+.login-card .field input { padding: 12px 14px 12px 42px; }
+.login-card .field input[type="password"] { padding-right: 46px; }
 .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: var(--muted); cursor: pointer; display: flex; padding: 4px; border-radius: 6px; }
 .pw-toggle:hover { color: var(--red); }
 .btn-login {
@@ -691,7 +693,10 @@ tbody tr:hover { background: #f8f9fb; }
   .approve-bar-actions .btn-reject, .approve-bar-actions .btn-delete {
     width: 100%; justify-content: center; padding: 12px; font-size: 14px;
   }
-  .toast { left: 12px; right: 12px; top: 12px; justify-content: center; }
+  .toast {
+    left: 14px; right: 14px; top: 72px;
+    justify-content: center; padding: 13px 16px; font-size: 14.5px;
+  }
   .login-card { padding: 28px 22px; }
   .publish-warning { font-size: 13px; padding: 14px 12px; }
 
@@ -729,10 +734,42 @@ tbody tr:hover { background: #f8f9fb; }
 }
 
 /* ============ PRINT ============ */
+.print-only { display: none; }
+
 @media print {
-  .sidebar, .mobile-topbar, .status-actions, .sticky-submit, .back-link, .approve-bar, .toast { display: none !important; }
-  .app-main { margin-left: 0; padding: 0; }
+  .sidebar, .mobile-topbar, .status-actions, .sticky-submit, .back-link, .approve-bar, .toast, .menu-btn, .sidebar-backdrop { display: none !important; }
+  .app-shell { display: block; }
+  .app-main { margin: 0; padding: 0; }
   body { background: #fff; }
-  .card { box-shadow: none; break-inside: avoid; }
-  .collapsible { break-inside: avoid; }
+
+  .print-only { display: block; }
+  .print-header { text-align: center; border-bottom: 3px solid var(--red); padding-bottom: 14px; margin-bottom: 18px; }
+  .print-header h1 { font-size: 20px; letter-spacing: 1px; }
+  .print-header h2 { font-size: 14px; color: var(--red); font-weight: 600; margin-top: 4px; }
+  .print-meta { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 12px; font-size: 12.5px; }
+  .print-meta strong { color: var(--navy); }
+  .print-status { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 11px; color: #fff; font-weight: 600; text-transform: capitalize; }
+
+  .content-main { max-width: 100%; }
+  .detail-header { margin-bottom: 0; }
+  .detail-header .back-link, .detail-header .eyebrow, .detail-header p { display: none; }
+  .detail-header h1 { font-size: 20px; }
+
+  .card { box-shadow: none; border: 1px solid var(--border-dark); padding: 14px 18px; margin-bottom: 12px; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card-header { margin-bottom: 10px; }
+  .card-header h3 { font-size: 14px; }
+  .card.form-card, .detail-card, .section-card, .progress-banner { border-left: 4px solid var(--navy); }
+  .section-card.mandatory { border-left-color: var(--red); }
+  .section-card.complete { border-left-color: var(--green); }
+  .badge-inline, .check-icon, .cs-count, .cs-count.done, .status-badge, .approval-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .read-grid { grid-template-columns: 1fr 1fr !important; gap: 6px 24px; }
+  .read-item { break-inside: avoid; font-size: 13.5px; }
+  .detail-grid, .approval-section { grid-template-columns: repeat(3, 1fr); }
+  .detail-grid > div { break-inside: avoid; }
+  .final-display { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .final-content { font-size: 13px; }
+
+  .publish-warning { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .big-pct { font-size: 26px; }
 }
