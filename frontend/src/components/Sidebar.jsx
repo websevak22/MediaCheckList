@@ -4,6 +4,7 @@ import {
   LogOut, HeartHandshake, ShieldCheck, Menu, X,
 } from 'lucide-react'
 import { isAdmin } from '../lib/auth'
+import InstallApp from './InstallApp'
 
 export default function Sidebar({ profile, onLogout, open, onToggle, onClose }) {
   const navigate = useNavigate()
@@ -34,6 +35,7 @@ export default function Sidebar({ profile, onLogout, open, onToggle, onClose }) 
         </button>
         <div className="brand-heart"><HeartHandshake size={18} /></div>
         <span className="mobile-title">DIGITAL MARKETING</span>
+        <InstallApp variant="icon" />
       </div>
 
       <aside className={`sidebar ${open ? 'open' : ''}`}>
@@ -78,6 +80,7 @@ export default function Sidebar({ profile, onLogout, open, onToggle, onClose }) 
               </span>
             </div>
           </div>
+          <InstallApp variant="full" />
           <button className="btn-logout" onClick={handleLogout}>
             <LogOut size={15} />
             <span>Logout</span>

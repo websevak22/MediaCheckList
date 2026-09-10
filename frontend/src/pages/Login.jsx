@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Mail, Lock, HeartHandshake, ArrowRight } from 'lucide-react'
 import { signIn } from '../lib/auth'
+import InstallApp from '../components/InstallApp'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -94,6 +95,8 @@ export default function Login() {
             )}
           </button>
         </form>
+
+        <InstallApp variant="block" />
 
         <p className="login-foot">© {new Date().getFullYear()} Digital Marketing</p>
       </div>

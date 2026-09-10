@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Plus, Clock, CheckCircle2, AlertTriangle, XCircle,
-  ArrowRight, FileQuestion, FileDown, Trash2, Eye,
+  ArrowRight, FileQuestion, FileDown, Trash2, Eye, Printer,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { isAdmin } from '../lib/auth'
@@ -53,29 +53,31 @@ export default function Dashboard({ profile }) {
     } catch (_e) { /* ignore */ }
   }
 
+  const reportRows = () => submissions.map((s) => {
+    const sec = {}
+    ALL_SECTIONS.forEach((x) => {
+      const total = x.items.length
+      const done = countSection(s[x.key])
+      sec[x.title] = total ? `${done}/${total}` : '0/0'
+    })
+    return {
+      'Title': s.video_title || '',
+      'Topic': s.video_topic || '',
+      'Editor': s.video_editor || '',
+      'Prepared By': s.prepared_by || '',
+      'Date': s.video_date || '',
+      'Duration': s.video_duration || '',
+      'Type': s.video_type?.replace('_', ' ') || '',
+      'Accuracy %': Math.round(checklistProgress(s) * 100),
+      'Status': STATUS_LABELS[s.status] || s.status || '',
+      'Submitted': s.created_at ? new Date(s.created_at).toLocaleString('en-IN') : '',
+      ...sec,
+    }
+  })
+
   const downloadReport = () => {
     if (!submissions.length) return
-    const rows = submissions.map((s) => {
-      const sec = {}
-      ALL_SECTIONS.forEach((x) => {
-        const total = x.items.length
-        const done = countSection(s[x.key])
-        sec[x.title] = total ? `${done}/${total}` : '0/0'
-      })
-      return {
-        'Title': s.video_title || '',
-        'Topic': s.video_topic || '',
-        'Editor': s.video_editor || '',
-        'Prepared By': s.prepared_by || '',
-        'Date': s.video_date || '',
-        'Duration': s.video_duration || '',
-        'Type': s.video_type?.replace('_', ' ') || '',
-        'Accuracy %': Math.round(checklistProgress(s) * 100),
-        'Status': STATUS_LABELS[s.status] || s.status || '',
-        'Submitted': s.created_at ? new Date(s.created_at).toLocaleString('en-IN') : '',
-        ...sec,
-      }
-    })
+    const rows = reportRows()
     const headers = Object.keys(rows[0])
     const csv = [
       headers.join(','),
@@ -94,6 +96,18 @@ export default function Dashboard({ profile }) {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  const printReport = () => {
+    if (!submissions.length) return
+    document.body.classList.add('report-print')
+    const cleanup = () => {
+      document.body.classList.remove('report-print')
+      window.removeEventListener('afterprint', cleanup)
+    }
+    window.addEventListener('afterprint', cleanup)
+    setTimeout(cleanup, 1000)
+    window.print()
   }
 
   const stats = admin
@@ -266,18 +280,76 @@ export default function Dashboard({ profile }) {
           <div className="report-icon"><FileDown size={22} /></div>
           <div className="report-main">
             <h3>Download Report</h3>
-            <p>Export all {admin ? 'submissions' : 'your submissions'} to CSV with section-wise completion. Opens in Excel.</p>
+            <p>Export all {admin ? 'submissions' : 'your submissions'} to CSV or PDF with section-wise completion. CSV opens in Excel.</p>
           </div>
-          <button
-            className="btn-primary report-btn"
-            onClick={downloadReport}
-            disabled={!submissions.length}
-          >
-            <FileDown size={16} />
-            <span>{submissions.length ? `Download CSV (${submissions.length})` : 'No data yet'}</span>
-          </button>
+          <div className="report-actions">
+            <button
+              className="btn-primary report-btn"
+              onClick={downloadReport}
+              disabled={!submissions.length}
+            >
+              <FileDown size={16} />
+              <span>{submissions.length ? `Download CSV (${submissions.length})` : 'No data yet'}</span>
+            </button>
+            <button
+              className="btn-primary report-btn"
+              onClick={printReport}
+              disabled={!submissions.length}
+            >
+              <Printer size={16} />
+              <span>{submissions.length ? `Download PDF (${submissions.length})` : 'No data yet'}</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {submissions.length > 0 && (
+        <div className="report-sheet" aria-hidden="true">
+          <div className="report-sheet-head">
+            <h1>BEING SEVAK CHARITABLE TRUST</h1>
+            <h2>Digital Marketing — YouTube Checklist Report</h2>
+            <p>
+              Prepared by {profile?.full_name || profile?.email || '—'} ·{' '}
+              {new Date().toLocaleString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              {' · '}{submissions.length} submission(s)
+            </p>
+          </div>
+          <table className="report-sheet-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Editor</th>
+                <th>Date</th>
+                <th>Accuracy</th>
+                <th>Status</th>
+                {ALL_SECTIONS.map((sec) => <th key={sec.key}>{sec.title}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {submissions.map((s, i) => (
+                <tr key={s.id}>
+                  <td>{i + 1}</td>
+                  <td>{s.video_title || 'Untitled'}</td>
+                  <td>{s.video_editor || ''}</td>
+                  <td>{s.video_date || ''}</td>
+                  <td>{Math.round(checklistProgress(s) * 100)}%</td>
+                  <td>
+                    <span className="report-status" style={{ background: STATUS_COLORS[s.status] }}>
+                      {STATUS_LABELS[s.status] || s.status || ''}
+                    </span>
+                  </td>
+                  {ALL_SECTIONS.map((sec) => {
+                    const total = sec.items.length
+                    const done = countSection(s[sec.key])
+                    return <td key={sec.key}>{total ? `${done}/${total}` : ''}</td>
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
