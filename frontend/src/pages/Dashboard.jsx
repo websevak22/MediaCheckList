@@ -9,6 +9,7 @@ import { isAdmin } from '../lib/auth'
 import { useToast } from '../components/Toast'
 import { STATUS_COLORS, STATUS_LABELS, TYPE_LABELS, TYPE_COLORS, checklistProgress, countSection, ALL_SECTIONS } from '../lib/checklistData'
 import ProgressBar from '../components/ProgressBar'
+import ChecklistSheet from '../components/ChecklistSheet'
 
 export default function Dashboard({ profile }) {
   const admin = isAdmin(profile)
@@ -305,49 +306,11 @@ export default function Dashboard({ profile }) {
 
       {submissions.length > 0 && (
         <div className="report-sheet" aria-hidden="true">
-          <div className="report-sheet-head">
-            <h1>BEING SEVAK CHARITABLE TRUST</h1>
-            <h2>Digital Marketing — YouTube Checklist Report</h2>
-            <p>
-              Prepared by {profile?.full_name || profile?.email || '—'} ·{' '}
-              {new Date().toLocaleString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-              {' · '}{submissions.length} submission(s)
-            </p>
-          </div>
-          <table className="report-sheet-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>Editor</th>
-                <th>Date</th>
-                <th>Accuracy</th>
-                <th>Status</th>
-                {ALL_SECTIONS.map((sec) => <th key={sec.key}>{sec.title}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {submissions.map((s, i) => (
-                <tr key={s.id}>
-                  <td>{i + 1}</td>
-                  <td>{s.video_title || 'Untitled'}</td>
-                  <td>{s.video_editor || ''}</td>
-                  <td>{s.video_date || ''}</td>
-                  <td>{Math.round(checklistProgress(s) * 100)}%</td>
-                  <td>
-                    <span className="report-status" style={{ background: STATUS_COLORS[s.status] }}>
-                      {STATUS_LABELS[s.status] || s.status || ''}
-                    </span>
-                  </td>
-                  {ALL_SECTIONS.map((sec) => {
-                    const total = sec.items.length
-                    const done = countSection(s[sec.key])
-                    return <td key={sec.key}>{total ? `${done}/${total}` : ''}</td>
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {submissions.map((s) => (
+            <div className="report-submission" key={s.id}>
+              <ChecklistSheet checklist={s} />
+            </div>
+          ))}
         </div>
       )}
     </div>

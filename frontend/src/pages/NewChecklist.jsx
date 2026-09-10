@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { CheckCircle2, PlaySquare, Palette, Users, Type, AlignLeft, Hash, Image as ImageIcon, MonitorPlay, Settings2, BadgeCheck, Send, ShieldAlert } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { CheckCircle2, PlaySquare, Palette, Users, Type, AlignLeft, Hash, Image as ImageIcon, MonitorPlay, Settings2, BadgeCheck, Send, ShieldAlert, ArrowLeft } from 'lucide-react'
 import { api } from '../lib/api'
 import CollapsibleSection from '../components/CollapsibleSection'
 import CheckGroup from '../components/CheckGroup'
@@ -22,11 +22,12 @@ const TYPE_OPTIONS = [
   ['awareness', 'Awareness'],
 ]
 
-export default function NewChecklist({ profile }) {
+export default function NewChecklist({ profile, editId }) {
   const navigate = useNavigate()
   const showToast = useToast()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [loadingExisting, setLoadingExisting] = useState(false)
 
   const [form, setForm] = useState({
     video_title: '',
@@ -55,6 +56,33 @@ export default function NewChecklist({ profile }) {
       { role: 'final_approver', name: '', signature: '' },
     ],
   })
+
+  useEffect(() => {
+    if (!editId) return
+    setLoadingExisting(true)
+    api.getChecklist(editId)
+      .then((data) => {
+        const { approvers = [], ...checklist } = data || {}
+        setForm((prev) => {
+          const next = { ...prev }
+          Object.keys(prev).forEach((k) => {
+            if (k !== 'approvers' && k !== 'user_id' && checklist[k] !== undefined) next[k] = checklist[k]
+          })
+          if (Array.isArray(approvers) && approvers.length) {
+            next.approvers = prev.approvers.map((a) => {
+              const found = approvers.find((x) => x.role === a.role)
+              return found ? { role: a.role, name: found.name || '', signature: found.signature || '' } : a
+            })
+          }
+          return next
+        })
+      })
+      .catch(() => {
+        showToast('Could not load this checklist', 'error')
+      })
+      .finally(() => setLoadingExisting(false))
+    // eslint-disable-next-line
+  }, [editId])
 
   const sectionIcons = [
     PlaySquare, Palette, Users, Type, AlignLeft, Hash,
@@ -115,10 +143,15 @@ export default function NewChecklist({ profile }) {
       const { approvers, user_id, ...checklistData } = form
       Object.keys(checklistData).forEach((k) => { checklistData[k] = checklistData[k] ?? '' })
 
-      await api.createChecklist({ ...checklistData, approvers })
-
-      showToast('Checklist submitted successfully!')
-      setTimeout(() => navigate('/dashboard'), 900)
+      if (editId) {
+        await api.updateChecklist(editId, { ...checklistData, approvers })
+        showToast('Checklist updated successfully!')
+        setTimeout(() => navigate(profile?.role === 'admin' ? '/submissions' : '/my-submissions'), 900)
+      } else {
+        await api.createChecklist({ ...checklistData, approvers })
+        showToast('Checklist submitted successfully!')
+        setTimeout(() => navigate('/dashboard'), 900)
+      }
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
     } finally {
@@ -130,11 +163,20 @@ export default function NewChecklist({ profile }) {
     <div className="content-main">
       {error && <div className="error-banner">{error}</div>}
 
+      {loadingExisting ? (
+        <div className="empty"><div className="spinner" /><p>Loading checklist...</p></div>
+      ) : (
+        <>
       <div className="page-header">
         <div>
-          <div className="eyebrow">Content Creation</div>
-          <h1>New YouTube Checklist</h1>
-          <p>Complete all sections before publishing. Mandatory items are highlighted.</p>
+          {editId && (
+            <Link to={profile?.role === 'admin' ? '/submissions' : '/my-submissions'} className="back-link">
+              <ArrowLeft size={15} /> Back to {profile?.role === 'admin' ? 'All Submissions' : 'My Submissions'}
+            </Link>
+          )}
+          <div className="eyebrow">{editId ? 'Content Editing' : 'Content Creation'}</div>
+          <h1>{editId ? 'Edit YouTube Checklist' : 'New YouTube Checklist'}</h1>
+          <p>{editId ? 'Update the checklist and save your changes. It will be sent for review again.' : 'Complete all sections before publishing. Mandatory items are highlighted.'}</p>
         </div>
         <div className="header-progress">
           <div className="header-progress-card">
@@ -245,10 +287,12 @@ export default function NewChecklist({ profile }) {
           </div>
           <button type="submit" className="btn-primary" disabled={saving}>
             {saving ? <span className="btn-loader" /> : <Send size={16} />}
-            <span>{saving ? 'Submitting...' : 'Submit Checklist'}</span>
+            <span>{saving ? (editId ? 'Saving...' : 'Submitting...') : (editId ? 'Save Changes' : 'Submit Checklist')}</span>
           </button>
         </div>
       </form>
+        </>
+      )}
     </div>
   )
 }

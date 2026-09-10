@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 import { getCurrentUser, signOut } from './lib/auth'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -30,6 +30,11 @@ function AppLayout({ profile, onLogout, children }) {
       <main className="app-main">{children}</main>
     </div>
   )
+}
+
+function EditChecklistRoute({ profile }) {
+  const { id } = useParams()
+  return <NewChecklist profile={profile} editId={id} />
 }
 
 export default function App() {
@@ -76,6 +81,14 @@ export default function App() {
           <ProtectedRoute>{(p) => (
             <AppLayout profile={p} onLogout={handleLogout}>
               <NewChecklist profile={p} />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
+
+        <Route path="/edit/:id" element={
+          <ProtectedRoute>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <EditChecklistRoute profile={p} />
             </AppLayout>
           )}</ProtectedRoute>
         } />

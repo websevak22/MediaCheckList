@@ -7,7 +7,7 @@ const run = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catc
 
 router.use(requireAuth)
 
-// GET /api/checklists  (admin: all, normal: own)
+// GET /api/checklists  (admin: all, normal: own) — embeds approvers per checklist
 router.get('/', run(async (req, res) => {
   const admin = req.profile?.role === 'admin'
 
@@ -21,7 +21,26 @@ router.get('/', run(async (req, res) => {
 
   const { data, error } = await query
   if (error) return res.status(500).json({ error: error.message })
-  res.json(data || [])
+
+  const result = (data || []).map((c) => ({ ...c, approvers: [] }))
+
+  if (result.length) {
+    const ids = result.map((c) => c.id)
+    const { data: approvers, error: apErr } = await req.data
+      .from('approvers')
+      .select('*')
+      .in('checklist_id', ids)
+
+    if (!apErr) {
+      const map = {}
+      ;(approvers || []).forEach((a) => {
+        ;(map[a.checklist_id] = map[a.checklist_id] || []).push(a)
+      })
+      result.forEach((c) => { c.approvers = map[c.id] || [] })
+    }
+  }
+
+  res.json(result)
 }))
 
 // GET /api/checklists/:id  (+ its approvers)
@@ -50,6 +69,56 @@ router.get('/:id', run(async (req, res) => {
     .order('created_at')
 
   res.json({ ...checklist, approvers: approvers || [] })
+}))
+
+// PUT /api/checklists/:id  (owner or admin: update checklist + replace approvers)
+router.put('/:id', run(async (req, res) => {
+  const { id } = req.params
+  const admin = req.profile?.role === 'admin'
+  const body = req.body || {}
+  const { approvers, ...checklistData } = body
+
+  const { data: existing, error: findErr } = await req.data
+    .from('checklists')
+    .select('user_id, status')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (findErr) return res.status(500).json({ error: findErr.message })
+  if (!existing) return res.status(404).json({ error: 'Checklist not found' })
+
+  if (!admin && existing.user_id !== req.user.id) {
+    return res.status(403).json({ error: 'You can only edit your own checklists' })
+  }
+
+  const payload = { ...checklistData, status: 'pending' }
+
+  const { data: updated, error: upErr } = await req.data
+    .from('checklists')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (upErr) return res.status(500).json({ error: upErr.message })
+
+  if (Array.isArray(approvers)) {
+    await req.data.from('approvers').delete().eq('checklist_id', id)
+    const rows = approvers
+      .filter((a) => a && a.name && String(a.name).trim())
+      .map((a) => ({
+        checklist_id: id,
+        role: a.role,
+        name: a.name,
+        signature: a.signature || '',
+      }))
+    if (rows.length) {
+      const { error: apErr } = await req.data.from('approvers').insert(rows)
+      if (apErr) return res.status(500).json({ error: apErr.message })
+    }
+  }
+
+  res.json(updated)
 }))
 
 // POST /api/checklists  (create checklist + optional approvers)

@@ -1,10 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, AlertTriangle, XCircle, Trash2, ClipboardCheck, UserCheck, FileDown } from 'lucide-react'
-import { api } from '../lib/api'
-import { isAdmin } from '../lib/auth'
-import { useToast } from '../components/Toast'
-import ProgressBar from '../components/ProgressBar'
+import { CheckCircle2, AlertTriangle, ClipboardCheck } from 'lucide-react'
+import ProgressBar from './ProgressBar'
 import {
   ALL_SECTIONS, countSection, checklistProgress,
   STATUS_COLORS, STATUS_LABELS,
@@ -32,123 +27,26 @@ function ReadOnlyGrid({ items, values }) {
   )
 }
 
-export default function SubmissionDetail({ profile }) {
-  const { id } = useParams()
-  const admin = isAdmin(profile)
-  const showToast = useToast()
-  const [checklist, setChecklist] = useState(null)
-  const [approvers, setApprovers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
-
-  useEffect(() => {
-    fetchData()
-    // eslint-disable-next-line
-  }, [id])
-
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const data = await api.getChecklist(id)
-      const { approvers = [], ...checklist } = data || {}
-      setChecklist(checklist)
-      setApprovers(approvers)
-    } catch (_e) {
-      setChecklist(null)
-      setApprovers([])
-    }
-    setLoading(false)
-  }
-
-  const updateStatus = async (newStatus, label) => {
-    setUpdating(true)
-    try {
-      await api.updateStatus(id, newStatus)
-      setChecklist((prev) => ({ ...prev, status: newStatus }))
-      showToast(`Checklist marked as ${label}`)
-    } catch (err) {
-      setChecklist((prev) => prev)
-    }
-    setUpdating(false)
-  }
-
-  const handleDelete = async () => {
-    if (!confirm('Delete this checklist permanently?')) return
-    setUpdating(true)
-    try {
-      await api.deleteChecklist(id)
-      showToast('Checklist deleted')
-    } catch (_e) { /* ignore */ }
-    setUpdating(false)
-    window.location.href = admin ? '/submissions' : '/my-submissions'
-  }
-
-  if (loading) return <div className="content-main"><div className="empty"><div className="spinner" /><p>Loading...</p></div></div>
-  if (!checklist) return <div className="content-main"><div className="empty">Checklist not found. <Link to="/dashboard">Go back</Link></div></div>
-
-  const approverMap = {}
-  approvers.forEach((a) => { approverMap[a.role] = a })
-  const isOwner = profile?.id === checklist.user_id
-  const canApprove = admin
-  const canDelete = admin || isOwner
+export default function ChecklistSheet({ checklist }) {
   const progress = Math.round(checklistProgress(checklist) * 100)
+  const approverMap = {}
+  ;(checklist?.approvers || []).forEach((a) => { approverMap[a.role] = a })
 
   return (
-    <div className="content-main">
+    <>
       <div className="print-only print-header">
         <h1>BEING SEVAK CHARITABLE TRUST</h1>
         <h2>YouTube Video — Pre-Upload Checklist &amp; Approval Form</h2>
         <div className="print-meta">
           <span><strong>Video:</strong> {checklist.video_title || 'Untitled'}</span>
           <span><strong>Editor:</strong> {checklist.video_editor || '—'}</span>
-          <span><strong>Submitted:</strong> {new Date(checklist.created_at).toLocaleString('en-IN')}</span>
+          <span><strong>Submitted:</strong> {checklist.created_at ? new Date(checklist.created_at).toLocaleString('en-IN') : '—'}</span>
           <span><strong>Completion:</strong> {progress}%</span>
           <span className="print-status" style={{ background: STATUS_COLORS[checklist.status] }}>
-            {STATUS_LABELS[checklist.status]}
+            {STATUS_LABELS[checklist.status] || checklist.status || ''}
           </span>
         </div>
       </div>
-
-      <div className="page-header detail-header">
-        <div>
-          <Link to={admin ? '/submissions' : '/my-submissions'} className="back-link">
-            <ArrowLeft size={15} /> Back to {admin ? 'All Submissions' : 'My Submissions'}
-          </Link>
-          <div className="eyebrow">Checklist Review</div>
-          <h1>{checklist.video_title || 'Untitled'}</h1>
-          <p>Submitted on {new Date(checklist.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-        </div>
-        <div className="status-actions">
-          <span className="status-badge large" style={{ background: STATUS_COLORS[checklist.status] }}>
-            {STATUS_LABELS[checklist.status]}
-          </span>
-          <button className="btn-primary" onClick={() => window.print()}>
-            <FileDown size={15} /> Download PDF
-          </button>
-          {canDelete && (
-            <button className="btn-delete" disabled={updating} onClick={handleDelete}>
-              <Trash2 size={15} /> Delete
-            </button>
-          )}
-        </div>
-      </div>
-
-      {canApprove && (
-        <div className="approve-bar card">
-          <div className="approve-bar-label"><UserCheck size={16} /> Review Decision</div>
-          <div className="approve-bar-actions">
-            <button className="btn-approve" disabled={updating} onClick={() => updateStatus('approved', 'Approved')}>
-              <CheckCircle2 size={15} /> Approve
-            </button>
-            <button className="btn-changes" disabled={updating} onClick={() => updateStatus('changes_required', 'Changes Required')}>
-              <AlertTriangle size={15} /> Changes Required
-            </button>
-            <button className="btn-reject" disabled={updating} onClick={() => updateStatus('not_approved', 'Not Approved')}>
-              <XCircle size={15} /> Not Approved
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="progress-banner card">
         <div className="banner-row">
@@ -165,7 +63,7 @@ export default function SubmissionDetail({ profile }) {
       <div className="card detail-card">
         <div className="card-header"><h3>Video Details</h3></div>
         <div className="detail-grid">
-          <div><span>Title</span><strong>{checklist.video_title}</strong></div>
+          <div><span>Title</span><strong>{checklist.video_title || '—'}</strong></div>
           <div><span>Topic / Project</span><strong>{checklist.video_topic || '—'}</strong></div>
           <div><span>Editor</span><strong>{checklist.video_editor || '—'}</strong></div>
           <div><span>Prepared By</span><strong>{checklist.prepared_by || '—'}</strong></div>
@@ -231,6 +129,6 @@ export default function SubmissionDetail({ profile }) {
             : 'PUBLISH ONLY AFTER ALL MANDATORY CHECKS ARE COMPLETED AND APPROVED.'}
         </span>
       </div>
-    </div>
+    </>
   )
 }

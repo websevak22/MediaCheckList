@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, Plus, FileQuestion, Trash2, Eye } from 'lucide-react'
+import { Search, Plus, FileQuestion, Trash2, Eye, Pencil } from 'lucide-react'
 import { api } from '../lib/api'
 import { useToast } from '../components/Toast'
 import { STATUS_COLORS, STATUS_LABELS, checklistProgress } from '../lib/checklistData'
@@ -144,6 +144,7 @@ export default function Submissions({ profile, admin }) {
                     </td>
                     <td className="cell-actions" data-label="Actions">
                       <Link to={`/submission/${s.id}`} className="icon-btn view" title="View"><Eye size={15} /></Link>
+                      <Link to={`/edit/${s.id}`} className="icon-btn edit" title="Edit"><Pencil size={15} /></Link>
                       <button className="icon-btn delete" title="Delete" onClick={() => handleDelete(s.id)}>
                         <Trash2 size={15} />
                       </button>
