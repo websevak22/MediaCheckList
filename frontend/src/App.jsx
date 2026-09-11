@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import NewChecklist from './pages/NewChecklist'
 import Submissions from './pages/Submissions'
 import SubmissionDetail from './pages/SubmissionDetail'
+import EventPlanner from './pages/EventPlanner'
 
 function AppLayout({ profile, onLogout, children }) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -113,6 +114,14 @@ export default function App() {
           <ProtectedRoute>{(p) => (
             <AppLayout profile={p} onLogout={handleLogout}>
               <SubmissionDetail profile={p} />
+            </AppLayout>
+          )}</ProtectedRoute>
+        } />
+
+        <Route path="/event-planner" element={
+          <ProtectedRoute>{(p) => (
+            <AppLayout profile={p} onLogout={handleLogout}>
+              <EventPlanner />
             </AppLayout>
           )}</ProtectedRoute>
         } />

@@ -62,4 +62,10 @@ export const api = {
   updateChecklist: (id, payload) => request('PUT', `/checklists/${id}`, payload),
   updateStatus: (id, status) => request('PATCH', `/checklists/${id}/status`, { status }),
   deleteChecklist: (id) => request('DELETE', `/checklists/${id}`),
+
+  listEvents: () => request('GET', '/events'),
+  getEvent: (id) => request('GET', `/events/${id}`),
+  createEvent: (payload) => request('POST', '/events', payload),
+  updateEvent: (id, payload) => request('PUT', `/events/${id}`, payload),
+  deleteEvent: (id) => request('DELETE', `/events/${id}`),
 }

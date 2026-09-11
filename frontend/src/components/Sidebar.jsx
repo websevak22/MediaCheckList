@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, PlusSquare, ClipboardList, FileText,
+  LayoutDashboard, PlusSquare, ClipboardList, FileText, CalendarDays,
   LogOut, HeartHandshake, ShieldCheck, Menu, X,
 } from 'lucide-react'
 import { isAdmin } from '../lib/auth'
@@ -13,11 +13,13 @@ export default function Sidebar({ profile, onLogout, open, onToggle, onClose }) 
   const links = admin
     ? [
         { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { to: '/event-planner', label: 'Event Planner', icon: CalendarDays },
         { to: '/new', label: 'New Checklist', icon: PlusSquare },
         { to: '/submissions', label: 'All Submissions', icon: ClipboardList },
       ]
     : [
         { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { to: '/event-planner', label: 'Event Planner', icon: CalendarDays },
         { to: '/new', label: 'New Checklist', icon: PlusSquare },
         { to: '/my-submissions', label: 'My Submissions', icon: FileText },
       ]

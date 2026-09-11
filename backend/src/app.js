@@ -3,6 +3,7 @@ import cors from 'cors'
 import 'dotenv/config'
 import meRouter from './routes/me.js'
 import checklistsRouter from './routes/checklists.js'
+import eventsRouter from './routes/events.js'
 import { hasConfig } from './supabase.js'
 
 export function createApp() {
@@ -35,6 +36,7 @@ export function createApp() {
   // Routes
   app.use('/api', meRouter)
   app.use('/api/checklists', checklistsRouter)
+  app.use('/api/events', eventsRouter)
 
   // 404 fallback
   app.use((_req, res) => {
