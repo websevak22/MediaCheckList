@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   CalendarDays, Plus, Save, Trash2, Eye, Pencil, ArrowLeft,
-  Building2, Clock, MapPin, Users, ShieldCheck, LifeBuoy, FileText, X,
+  Building2, Clock, MapPin, Users, ShieldCheck, LifeBuoy, FileText, ClipboardList,
+  FileDown, Printer, X,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { isAdmin } from '../lib/auth'
@@ -63,6 +65,7 @@ function emptyRow() {
 export default function EventPlanner({ profile }) {
   const showToast = useToast()
   const admin = isAdmin(profile)
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
@@ -82,6 +85,20 @@ export default function EventPlanner({ profile }) {
   }
 
   useEffect(loadPlans, [])
+
+  // Support deep links: /event-planner?id=... (view) or ?edit=... (form)
+  useEffect(() => {
+    const viewId = searchParams.get('id')
+    const editId = searchParams.get('edit')
+    if (editId) {
+      startEdit(editId)
+      setSearchParams({}, { replace: true })
+    } else if (viewId) {
+      startView(viewId)
+      setSearchParams({}, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const startNew = () => {
     setEditingId(null)
@@ -120,14 +137,31 @@ export default function EventPlanner({ profile }) {
     }
   }
 
+  const downloadPdf = async (id) => {
+    setError(null)
+    try {
+      const data = id ? await api.getEvent(id) : viewing
+      if (!data) return
+      setViewing(data)
+      setMode('view')
+      setTimeout(() => window.print(), 250)
+    } catch (_e) {
+      showToast('Could not load this event plan', 'error')
+    }
+  }
+
   const handleDelete = async (plan) => {
-    if (!confirm(`Delete "${plan.program_title || 'this event plan'}" permanently?`)) return
+    if (!confirm(`Delete "${plan.program_title || 'this event plan'}" permanently?\n\nThis action cannot be undone.`)) return
     try {
       await api.deleteEvent(plan.id)
       setPlans((prev) => prev.filter((p) => p.id !== plan.id))
-      showToast('Event plan deleted')
+      if (mode !== 'list') {
+        setViewing(null)
+        setMode('list')
+      }
+      showToast('Event plan deleted successfully!')
     } catch (_e) {
-      showToast('Could not delete this event plan', 'error')
+      showToast(_e.message || 'Could not delete this event plan', 'error')
     }
   }
 
@@ -247,7 +281,18 @@ export default function EventPlanner({ profile }) {
     const distRows = Array.isArray(viewing.distribution_items) ? viewing.distribution_items : []
     return (
       <div className="content-main">
-        <div className="page-header">
+        <div className="print-only print-header">
+          <h1>NGO Program Requirement &amp; Planning Form</h1>
+          <h2>Event Planner · {viewing.program_title || 'Untitled Program'}</h2>
+          <div className="print-meta">
+            <span><strong>NGO:</strong> {viewing.ngo_name || '—'}</span>
+            <span><strong>Date:</strong> {formatDate(viewing.program_date) || '—'}</span>
+            <span><strong>Beneficiaries:</strong> {viewing.beneficiaries_required || '—'}</span>
+            <span className="print-status" style={{ background: '#2b3651' }}>Event Plan</span>
+          </div>
+        </div>
+
+        <div className="page-header plan-view-header">
           <div>
             <button className="back-link" onClick={() => setMode('list')}>
               <ArrowLeft size={15} /> Back to Event Planner
@@ -257,6 +302,9 @@ export default function EventPlanner({ profile }) {
             <p>{viewing.ngo_name ? `Planned for ${viewing.ngo_name}` : 'NGO program planning form'}</p>
           </div>
           <div className="header-actions">
+            <button className="btn-primary" onClick={() => window.print()}>
+              <FileDown size={15} /> Download PDF
+            </button>
             <button className="btn-outline" onClick={() => startEdit(viewing.id)}>
               <Pencil size={15} /> Edit
             </button>
@@ -538,7 +586,8 @@ export default function EventPlanner({ profile }) {
 
                 <div className="event-card-actions">
                   <button className="btn-view" onClick={() => startView(plan.id)}><Eye size={13} /> View</button>
-                  <button className="icon-btn-sm view" onClick={() => startEdit(plan.id)} title="Edit"><Pencil size={15} /></button>
+                  <button className="btn-edit" onClick={() => startEdit(plan.id)}><Pencil size={13} /> Edit</button>
+                  <button className="btn-pdf" onClick={() => downloadPdf(plan.id)}><FileDown size={13} /> Download PDF</button>
                   <button className="icon-btn-sm delete" onClick={() => handleDelete(plan)} title="Delete"><Trash2 size={15} /></button>
                 </div>
 

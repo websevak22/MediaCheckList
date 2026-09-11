@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   Plus, Clock, CheckCircle2, AlertTriangle, XCircle,
   ArrowRight, FileQuestion, FileDown, Trash2, Eye, Printer,
+  CalendarDays, Building2,
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { isAdmin } from '../lib/auth'
@@ -15,17 +16,20 @@ export default function Dashboard({ profile }) {
   const admin = isAdmin(profile)
   const showToast = useToast()
   const [submissions, setSubmissions] = useState([])
+  const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     api.listChecklists()
       .then((data) => setSubmissions(data || []))
       .catch(() => setSubmissions([]))
+    api.listEvents()
+      .then((data) => setEvents(data || []))
+      .catch(() => setEvents([]))
       .finally(() => setLoading(false))
   }, [])
 
   const countBy = (status) => submissions.filter((s) => s.status === status).length
-  const recent = submissions.slice(0, 6)
   const avgProgress = submissions.length
     ? Math.round(submissions.reduce((a, s) => a + checklistProgress(s), 0) / submissions.length * 100)
     : 0
@@ -53,6 +57,25 @@ export default function Dashboard({ profile }) {
       showToast('Checklist deleted')
     } catch (_e) { /* ignore */ }
   }
+
+  const deleteEvent = async (e) => {
+    if (!confirm(`Delete "${e.program_title || 'this event plan'}" permanently?`)) return
+    try {
+      await api.deleteEvent(e.id)
+      setEvents((prev) => prev.filter((x) => x.id !== e.id))
+      showToast('Event plan deleted successfully!')
+    } catch (_e) { /* ignore */ }
+  }
+
+  const recentItems = [
+    ...events.map((ev) => ({ kind: 'event', item: ev })),
+    ...submissions.map((s) => ({ kind: 'checklist', item: s })),
+  ]
+    .sort((a, b) => new Date(b.item.created_at) - new Date(a.item.created_at))
+    .slice(0, 6)
+
+  const formatItemDate = (item) =>
+    new Date(item.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 
   const reportRows = () => submissions.map((s) => {
     const sec = {}
@@ -114,6 +137,7 @@ export default function Dashboard({ profile }) {
   const stats = admin
     ? [
         { label: 'Total Submissions', value: submissions.length, icon: FileQuestion, color: '#3b82f6', bg: '#eff6ff' },
+        { label: 'Event Plans', value: events.length, icon: CalendarDays, color: '#8b5cf6', bg: '#f5f3ff' },
         { label: 'Pending', value: countBy('pending'), icon: Clock, color: '#f59e0b', bg: '#fff7ed' },
         { label: 'Approved', value: countBy('approved'), icon: CheckCircle2, color: '#10b981', bg: '#ecfdf5' },
         { label: 'Changes Required', value: countBy('changes_required'), icon: AlertTriangle, color: '#f97316', bg: '#fef3c7' },
@@ -121,6 +145,7 @@ export default function Dashboard({ profile }) {
       ]
     : [
         { label: 'My Submissions', value: submissions.length, icon: FileQuestion, color: '#3b82f6', bg: '#eff6ff' },
+        { label: 'Event Plans', value: events.length, icon: CalendarDays, color: '#8b5cf6', bg: '#f5f3ff' },
         { label: 'Pending', value: countBy('pending'), icon: Clock, color: '#f59e0b', bg: '#fff7ed' },
         { label: 'Approved', value: countBy('approved'), icon: CheckCircle2, color: '#10b981', bg: '#ecfdf5' },
         { label: 'Changes Required', value: countBy('changes_required'), icon: AlertTriangle, color: '#f97316', bg: '#fef3c7' },
@@ -164,7 +189,7 @@ export default function Dashboard({ profile }) {
       <div className="dashboard-grid">
         <div className="card recent-card">
           <div className="card-header">
-            <h3>{admin ? 'Recent Submissions' : 'My Recent Submissions'}</h3>
+            <h3>{admin ? 'Recent Activity' : 'My Recent Activity'}</h3>
             <Link to={admin ? '/submissions' : '/my-submissions'} className="link-view">
               View all <ArrowRight size={14} />
             </Link>
@@ -172,55 +197,88 @@ export default function Dashboard({ profile }) {
 
           {loading ? (
             <div className="empty"><div className="spinner" /><p>Loading submissions...</p></div>
-          ) : recent.length === 0 ? (
+          ) : recentItems.length === 0 ? (
             <div className="empty">
               <FileQuestion size={40} className="empty-icon" />
-              <p>No submissions yet.</p>
+              <p>No submissions or event plans yet.</p>
               <Link to="/new" className="btn-primary">
                 <Plus size={15} /> Create your first checklist
               </Link>
             </div>
           ) : (
             <div className="submission-list">
-              {recent.map((s) => (
-                <div className="submission-row" key={s.id}>
+              {recentItems.map(({ kind, item }) => (
+                kind === 'event' ? (
+                  <div className="submission-row" key={`ev-${item.id}`}>
+                    <div className="event-ring">
+                      <Building2 size={18} />
+                    </div>
+                    <div className="sub-info">
+                      <strong className="sub-title">{item.program_title || 'Untitled Event'}</strong>
+                      <span className="sub-meta">
+                        {formatItemDate(item)}
+                        {item.location ? ` · ${item.location}` : ''}
+                      </span>
+                      <span className="type-chip" style={{ color: '#8b5cf6' }}>
+                        <span className="type-dot" style={{ background: '#8b5cf6' }} />
+                        Event Plan
+                      </span>
+                    </div>
+                    <span className="status-badge" style={{ background: '#8b5cf6' }}>
+                      Event Plan
+                    </span>
+                    <Link to={`/event-planner?id=${item.id}`} className="btn-view">View</Link>
+                    <Link to={`/event-planner?id=${item.id}`} className="icon-btn-sm view" title="View">
+                      <Eye size={15} />
+                    </Link>
+                    <button
+                      className="icon-btn-sm delete"
+                      title="Delete"
+                      onClick={() => deleteEvent(item)}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                ) : (
+                <div className="submission-row" key={item.id}>
                   <div
                     className="sub-progress-ring"
-                    style={{ '--p': `${Math.round(checklistProgress(s) * 100)}%` }}
+                    style={{ '--p': `${Math.round(checklistProgress(item) * 100)}%` }}
                   >
-                    <span>{Math.round(checklistProgress(s) * 100)}</span>
+                    <span>{Math.round(checklistProgress(item) * 100)}</span>
                   </div>
                   <div className="sub-info">
-                    <strong className="sub-title">{s.video_title || 'Untitled'}</strong>
+                    <strong className="sub-title">{item.video_title || 'Untitled'}</strong>
                     <span className="sub-meta">
-                      {new Date(s.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      {s.video_editor ? ` · ${s.video_editor}` : ''}
+                      {formatItemDate(item)}
+                      {item.video_editor ? ` · ${item.video_editor}` : ''}
                     </span>
-                    {s.video_type && (
-                      <span className="type-chip" style={{ color: TYPE_COLORS[s.video_type] || '#66717f' }}>
-                        <span className="type-dot" style={{ background: TYPE_COLORS[s.video_type] || '#66717f' }} />
-                        {TYPE_LABELS[s.video_type] || s.video_type.replace('_', ' ')}
+                    {item.video_type && (
+                      <span className="type-chip" style={{ color: TYPE_COLORS[item.video_type] || '#66717f' }}>
+                        <span className="type-dot" style={{ background: TYPE_COLORS[item.video_type] || '#66717f' }} />
+                        {TYPE_LABELS[item.video_type] || item.video_type.replace('_', ' ')}
                       </span>
                     )}
                   </div>
                   <span
                     className="status-badge"
-                    style={{ background: STATUS_COLORS[s.status] }}
+                    style={{ background: STATUS_COLORS[item.status] }}
                   >
-                    {STATUS_LABELS[s.status]}
+                    {STATUS_LABELS[item.status]}
                   </span>
-                  <Link to={`/submission/${s.id}`} className="btn-view">View</Link>
-                  <Link to={`/submission/${s.id}`} className="icon-btn-sm view" title="View">
+                  <Link to={`/submission/${item.id}`} className="btn-view">View</Link>
+                  <Link to={`/submission/${item.id}`} className="icon-btn-sm view" title="View">
                     <Eye size={15} />
                   </Link>
                   <button
                     className="icon-btn-sm delete"
                     title="Delete"
-                    onClick={() => deleteSubmission(s)}
+                    onClick={() => deleteSubmission(item)}
                   >
                     <Trash2 size={15} />
                   </button>
                 </div>
+                )
               ))}
             </div>
           )}
